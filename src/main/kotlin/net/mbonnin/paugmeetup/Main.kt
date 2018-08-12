@@ -2,6 +2,6 @@ package net.mbonnin.paugmeetup
 
 
 fun main(args: Array<String>) {
-    Downloader().run()
-    //PaugAnalyzer().run()
+    //Downloader().run()
+    PaugAnalyzer().run()
 }

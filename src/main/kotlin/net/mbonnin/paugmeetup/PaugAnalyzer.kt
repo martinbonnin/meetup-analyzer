@@ -24,6 +24,8 @@ class PaugAnalyzer {
 
         val map = flatList.groupBy{ it.attendee.member.id }
 
+        val yesRsvp = flatList.filter { it.attendee.rsvp?.response == "yes" }
+        System.out.println("${yesRsvp.size} unique rsvps")
         System.out.println("${map.size} unique attendees")
 
         val userIdToYes = flatList
@@ -42,6 +44,23 @@ class PaugAnalyzer {
             System.out.println("#$index: ${pair.second.first().attendee.member.name}: ${pair.second.size}")
         }
 
+        val buckets = flatList
+                .filter {
+                    it.attendee.rsvp?.response == "yes"
+                }
+                .groupBy { it.attendee.member.id }
+                .toList()
+                .groupBy { it.second.size }
+                .toList()
+                .sortedBy { it.first }
+
+        System.out.println("answered yes 'x' times:")
+        buckets.forEachIndexed { index, pair ->
+            System.out.println("${pair.first}: ${pair.second.size}")
+        }
+
+        val verification = buckets.fold(0, { acc, pair -> acc + pair.first * pair.second.size })
+        System.out.println("verification: $verification")
 
 
     }
