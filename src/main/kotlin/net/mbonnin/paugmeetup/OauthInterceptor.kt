@@ -2,7 +2,6 @@ package net.mbonnin.paugmeetup
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import net.mbonnin.mooauth.Mooauth
 import okhttp3.*
 import okio.Okio
 import java.net.URLEncoder

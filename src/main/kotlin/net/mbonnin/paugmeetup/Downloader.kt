@@ -18,17 +18,17 @@ class Downloader {
     val ioContext = newFixedThreadPoolContext(nThreads = 1, name = "meetup io thread")
     val client by lazy {
         OkHttpClient.Builder()
-                .addInterceptor(OauthInterceptor())
-                .readTimeout(60, TimeUnit.SECONDS)
-                .build()
+            .addInterceptor(OauthInterceptor())
+            .readTimeout(60, TimeUnit.SECONDS)
+            .build()
     }
 
     val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.meetup.com/")
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .addConverterFactory(MoshiConverterFactory.create())
-            .client(client)
-            .build()
+        .baseUrl("https://api.meetup.com/")
+        .addCallAdapterFactory(CoroutineCallAdapterFactory())
+        .addConverterFactory(MoshiConverterFactory.create())
+        .client(client)
+        .build()
 
     val service = retrofit.create(MeetupService::class.java)
 
@@ -39,12 +39,17 @@ class Downloader {
         runBlocking {
             val meventList = service.getEvents().await()
 
-            meventList.forEachIndexed {index, mevent ->
+            meventList.forEachIndexed { index, mevent ->
 
                 System.out.println("$index/${meventList.size}: ${mevent.name}")
-                val attendeeList = async(ioContext) {
-                    service.getAttendance(mevent.id).await()
-                }.await()
+                val attendeeList = try {
+                    async(ioContext) {
+                        service.getAttendance(mevent.id).await()
+                    }.await()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return@forEachIndexed
+                }
 
                 // prevent overusing our meetup quota (we get a HTTP 429 else)
                 delay(500)
